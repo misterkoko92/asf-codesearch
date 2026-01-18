@@ -98,7 +98,7 @@ export function cleanString(value: unknown, { skipEmpty }: { skipEmpty?: boolean
 export function normalizeCode(value: unknown, options?: { skipEmpty?: boolean }) {
   const text = cleanString(value, options);
   if (text === undefined) return undefined;
-  if (text === null) return options?.skipEmpty ? undefined : [];
+  if (text === null) return options?.skipEmpty ? undefined : null;
   return text.replace(/[\s-]/g, "");
 }
 
