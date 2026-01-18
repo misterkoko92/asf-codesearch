@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceType {
+  manual
+  csv
+  external
+}
+
+enum ExternalSource {
+  open_food_facts
+  open_medic
+  bdpm
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
+}
+
+model Product {
+  id                 String     @id @default(cuid())
+  sku                String?    @unique
+  name               String
+  brand              String?
+  color              String?
+  categoryL1         String?
+  categoryL2         String?
+  categoryL3         String?
+  categoryL4         String?
+  tags               String[]   @default([])
+  warehouse          String?
+  rack               String?
+  shelf              String?
+  bin                String?
+  rackColor          String?
+  barcode            String?
+  ean                String?    @unique
+  gtin               String?    @unique
+  cip                String?    @unique
+  priceHt            Decimal?   @db.Decimal(12, 2)
+  vatRate            Decimal?   @db.Decimal(6, 2)
+  priceTtc           Decimal?   @db.Decimal(12, 2)
+  currency           String     @default("EUR")
+  lengthCm           Float?
+  widthCm            Float?
+  heightCm           Float?
+  weightG            Float?
+  volumeCm3          Float?
+  quantity           Int?
+  storageConditions  String?
+  perishable         Boolean?
+  quarantineDefault  Boolean?
+  notes              String?
+  photoUrl           String?
+  sourceType         SourceType @default(manual)
+  sourceName         String?
+  sourceSupplier     String?
+  sourceRef          String?
+  createdById        String?
+  createdBy          User?      @relation(fields: [createdById], references: [id])
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@index([name])
+  @@index([brand])
+  @@index([categoryL1])
+  @@index([categoryL2])
+  @@index([categoryL3])
+  @@index([categoryL4])
+  @@index([barcode])
+}
+
+model ExternalProduct {
+  id        String         @id @default(cuid())
+  source    ExternalSource
+  sourceId  String?
+  name      String?
+  brand     String?
+  ean       String?
+  gtin      String?
+  cip       String?
+  raw       Json?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([ean])
+  @@index([gtin])
+  @@index([cip])
+  @@index([source, sourceId])
+}
+
+model ExternalSearchUsage {
+  id          String   @id @default(cuid())
+  provider    String
+  windowStart DateTime
+  windowEnd   DateTime
+  count       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([provider, windowStart, windowEnd])
+  @@index([provider, windowStart, windowEnd])
+}

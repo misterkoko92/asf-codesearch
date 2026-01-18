@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: asf-codesearch-db
+    environment:
+      POSTGRES_USER: asf
+      POSTGRES_PASSWORD: asf
+      POSTGRES_DB: asf_codesearch
+    ports:
+      - "5432:5432"
+    volumes:
+      - asf_codesearch_db:/var/lib/postgresql/data
+
+volumes:
+  asf_codesearch_db:
