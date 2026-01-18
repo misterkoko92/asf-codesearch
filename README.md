@@ -21,6 +21,7 @@ npm install
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
+- `APP_BASE_URL` (ex: `http://localhost:3000`)
 - `COUNTRY_CODE` (default `FR`)
 
 3) Create the database schema:
@@ -96,6 +97,19 @@ ASF_WMS_API_KEY="..."
 
 `ASF_WMS_BASE_URL` should point to the root of the WMS app (the API path `/api/v1/products/` is used under the hood).
 The API key must match `INTEGRATION_API_KEY` in the `asf-wms` environment.
+
+## Password reset (forgot password)
+
+The app can send reset links via Resend (free tier). Set:
+
+```
+RESEND_API_KEY="..."
+EMAIL_FROM="ASF Codesearch <no-reply@your-domain>"
+RESET_PASSWORD_TTL_MINUTES="60"
+APP_BASE_URL="https://your-app-domain"
+```
+
+Without email configuration, the reset endpoint returns a configuration error.
 
 ## Deployment (recommended)
 
