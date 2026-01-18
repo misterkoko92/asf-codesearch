@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SourceType } from "@prisma/client";
 import type { ProductInput } from "@/lib/normalize";
 
 export type ProductFormMode = "create" | "edit";
@@ -91,6 +92,7 @@ export default function ProductForm({ mode, initial, onSave, onCancel, showTitle
 
     const payload: ProductInput = {
       ...form,
+      sourceType: form.sourceType as SourceType,
       perishable: form.perishable,
       quarantineDefault: form.quarantineDefault
     };
