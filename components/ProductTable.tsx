@@ -2,14 +2,31 @@
 
 type Product = {
   id: string;
+  sku: string | null;
   name: string;
   brand: string | null;
-  sku: string | null;
+  color: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  tags: string[];
   barcode: string | null;
   ean: string | null;
   priceHt: number | null;
+  vatRate: number | null;
   priceTtc: number | null;
+  lengthCm: number | null;
+  widthCm: number | null;
+  heightCm: number | null;
+  weightG: number | null;
+  volumeCm3: number | null;
   availableStock: number | null;
+  defaultLocationId: number | null;
+  storageConditions: string | null;
+  perishable: boolean | null;
+  quarantineDefault: boolean | null;
+  notes: string | null;
+  photoUrl: string | null;
+  isActive: boolean | null;
 };
 
 type Props = {
