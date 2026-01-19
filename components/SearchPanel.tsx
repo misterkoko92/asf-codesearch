@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent } from "react";
-import Scanner from "@/components/Scanner";
+import Scanner, { type ScanPayload } from "@/components/Scanner";
 
 export type SearchFilters = {
   q: string;
@@ -45,7 +45,7 @@ type Props = {
   onChange: (filters: SearchFilters) => void;
   onSearch: () => void;
   onExternalLookup: () => void;
-  onScan: (code: string) => void;
+  onScan: (payload: ScanPayload) => void;
   externalSources: ExternalSourceSelection;
   onExternalSourcesChange: (sources: ExternalSourceSelection) => void;
   loading?: boolean;

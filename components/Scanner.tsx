@@ -2,9 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader, type IScannerControls } from "@zxing/browser";
+import { BarcodeFormat } from "@zxing/library";
 
 type Props = {
-  onScan: (code: string) => void;
+  onScan: (payload: ScanPayload) => void;
+};
+
+export type ScanPayload = {
+  text: string;
+  format: string | null;
 };
 
 export default function Scanner({ onScan }: Props) {
@@ -33,7 +39,8 @@ export default function Scanner({ onScan }: Props) {
     reader
       .decodeFromVideoDevice(undefined, videoElement, (result, err) => {
         if (result) {
-          onScan(result.getText());
+          const format = BarcodeFormat[result.getBarcodeFormat()] ?? null;
+          onScan({ text: result.getText(), format });
           setActive(false);
         }
         if (err && !canceled) {

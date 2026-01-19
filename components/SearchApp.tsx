@@ -5,6 +5,8 @@ import SearchPanel, { ExternalSourceSelection, SearchFilters } from "@/component
 import ProductTable from "@/components/ProductTable";
 import ProductDetails from "@/components/ProductDetails";
 import ExternalResults from "@/components/ExternalResults";
+import { parseGs1Barcode } from "@/lib/gs1";
+import { type ScanPayload } from "@/components/Scanner";
 
 const initialFilters: SearchFilters = {
   q: "",
@@ -247,16 +249,78 @@ export default function SearchApp({ user }: Props) {
     window.location.href = "/login";
   }
 
-  function handleScan(code: string) {
-    const cleaned = code.replace(/[\s-]/g, "");
-    const next = { ...filters, barcode: cleaned };
-    if (cleaned.length === 13) {
-      next.ean = cleaned;
-    } else if (cleaned.length === 14) {
-      next.gtin = cleaned;
+  function handleScan(payload: ScanPayload) {
+    const raw = payload.text.trim();
+    if (!raw) return;
+
+    const compact = raw.replace(/[\s\u001d]/g, "");
+    const digitsOnly = compact.replace(/[^\d]/g, "");
+    const formatAlias: Record<string, string> = {
+      EAN_13: "EAN-13",
+      EAN_8: "EAN-8",
+      UPC_A: "UPC-A",
+      UPC_E: "UPC-E",
+      ITF: "ITF",
+      CODE_128: "Code 128",
+      CODE_39: "Code 39",
+      QR_CODE: "QR Code",
+      DATA_MATRIX: "Data Matrix",
+      PDF_417: "PDF417",
+      RSS_14: "GS1 DataBar",
+      RSS_EXPANDED: "GS1 DataBar Expanded"
+    };
+    const formatLabel = payload.format ? formatAlias[payload.format] ?? payload.format.replace(/_/g, " ") : null;
+    const gs1 = parseGs1Barcode(raw);
+
+    const next = { ...filters };
+    let barcodeValue = digitsOnly || compact;
+
+    if (gs1?.gtin) {
+      const gtin = gs1.gtin;
+      if (gtin.length === 13) {
+        next.ean = gtin;
+      } else if (gtin.length === 14) {
+        next.gtin = gtin;
+        if (gtin.startsWith("0")) {
+          next.ean = gtin.slice(1);
+        }
+      }
+      barcodeValue = gtin;
+    } else if (digitsOnly) {
+      if (digitsOnly.length === 13) {
+        next.ean = digitsOnly;
+      } else if (digitsOnly.length === 14) {
+        next.gtin = digitsOnly;
+      } else if (digitsOnly.length === 12) {
+        next.ean = `0${digitsOnly}`;
+        next.gtin = `00${digitsOnly}`;
+      }
     }
+
+    next.barcode = barcodeValue;
     setFilters(next);
-    setMessage(`Scan: ${cleaned}`);
+
+    const parts = [];
+    const symbology = gs1?.symbology ?? formatLabel;
+    if (symbology) parts.push(`Format: ${symbology}`);
+    parts.push(`Scan: ${barcodeValue}`);
+
+    if (gs1?.gtin) parts.push(`GTIN: ${gs1.gtin}`);
+    if (gs1?.ddm) {
+      const ddmLabel = gs1.ddmFormatted ? `${gs1.ddm} (${gs1.ddmFormatted})` : gs1.ddm;
+      parts.push(`DDM: ${ddmLabel}`);
+    }
+
+    if (gs1?.aiEntries.length) {
+      const preview = gs1.aiEntries
+        .slice(0, 4)
+        .map((entry) => `(${entry.ai})${entry.value}`)
+        .join(" ");
+      const remaining = gs1.aiEntries.length - 4;
+      parts.push(`AI: ${preview}${remaining > 0 ? ` +${remaining}` : ""}`);
+    }
+
+    setMessage(parts.join(" | "));
     void loadProducts(next);
   }
 
