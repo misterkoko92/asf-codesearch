@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent } from "react";
+import Scanner from "@/components/Scanner";
 
 export type SearchFilters = {
   q: string;
@@ -44,6 +45,7 @@ type Props = {
   onChange: (filters: SearchFilters) => void;
   onSearch: () => void;
   onExternalLookup: () => void;
+  onScan: (code: string) => void;
   externalSources: ExternalSourceSelection;
   onExternalSourcesChange: (sources: ExternalSourceSelection) => void;
   loading?: boolean;
@@ -54,6 +56,7 @@ export default function SearchPanel({
   onChange,
   onSearch,
   onExternalLookup,
+  onScan,
   externalSources,
   onExternalSourcesChange,
   loading
@@ -147,6 +150,7 @@ export default function SearchPanel({
         </label>
         <input id="barcode" className="input" value={filters.barcode} onChange={handleChange("barcode")} />
       </div>
+      <Scanner onScan={onScan} />
       <details className="details">
         <summary className="details-summary">Filtres ASF WMS</summary>
         <div className="details-body stack">

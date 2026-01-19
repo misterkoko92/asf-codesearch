@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import SearchPanel, { ExternalSourceSelection, SearchFilters } from "@/components/SearchPanel";
 import ProductTable from "@/components/ProductTable";
 import ProductDetails from "@/components/ProductDetails";
-import Scanner from "@/components/Scanner";
 import ExternalResults from "@/components/ExternalResults";
 
 const initialFilters: SearchFilters = {
@@ -286,13 +285,11 @@ export default function SearchApp({ user }: Props) {
               onChange={setFilters}
               onSearch={handleSearch}
               onExternalLookup={handleExternalLookup}
+              onScan={handleScan}
               externalSources={externalSources}
               onExternalSourcesChange={setExternalSources}
               loading={loading}
             />
-          </div>
-          <div className="panel">
-            <Scanner onScan={handleScan} />
           </div>
         </div>
 
